@@ -224,7 +224,29 @@ const SIDEBAR_TOGGLE = {
  */
 const mainSize = computed(() => mainSizeOf(layout.value))
 
+/* ───────────────────────────────────────────────────────────────────────
+ * 网页版 · 窄屏（手机/小窗）适配
+ * 桌面端三栏在窄屏会被挤成三条缝。这里不改用户的布局配置（config.json），
+ * 只在浏览器里把左右两栏降级成「抽屉」：默认收起、主内容全宽，点左上/右上
+ * 的开合按钮把对应抽屉滑出来，点遮罩或再点一次收起。桌面端逻辑一行不变。
+ * ─────────────────────────────────────────────────────────────────────── */
+const MOBILE_BP = 820 // px，低于此宽度进入抽屉模式
+const isMobile = ref(false)
+const mobileDrawer = ref<'none' | 'left' | 'right'>('none')
+
+function onViewportResize() {
+  const mobile = window.innerWidth <= MOBILE_BP
+  if (mobile !== isMobile.value) {
+    isMobile.value = mobile
+    mobileDrawer.value = 'none' // 跨越断点时收起抽屉，避免残留
+  }
+}
+
 function togglePanel() {
+  if (isMobile.value) {
+    mobileDrawer.value = mobileDrawer.value === 'right' ? 'none' : 'right'
+    return
+  }
   void settings.setLayout({ rightPanelOpen: !rightPanelOpen.value })
 }
 
@@ -232,7 +254,16 @@ function togglePanel() {
  *  v18 起是**三态循环**：open → rail（图标窄栏）→ hidden → open ——
  *  循环顺序与理由在 shared/layout.ts 的 sidebarTogglePatch。 */
 function toggleSidebar() {
+  if (isMobile.value) {
+    mobileDrawer.value = mobileDrawer.value === 'left' ? 'none' : 'left'
+    return
+  }
   void settings.setLayout(sidebarTogglePatch(layout.value))
+}
+
+/** 点遮罩收起当前抽屉 */
+function closeMobileDrawer() {
+  mobileDrawer.value = 'none'
 }
 
 /**
@@ -321,6 +352,8 @@ function onGlobalKey(e: KeyboardEvent) {
  * 那 3px 蓝条本来就代表「正在拖」且同样会被下一次 release 自愈。
  */
 onMounted(() => {
+  onViewportResize() // 首次判定窄屏
+  window.addEventListener('resize', onViewportResize)
   window.addEventListener('keydown', onGlobalKey)
   window.addEventListener('blur', clearFoldHint)
   /*
@@ -335,6 +368,7 @@ onMounted(() => {
   }
 })
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', onViewportResize)
   window.removeEventListener('keydown', onGlobalKey)
   window.removeEventListener('blur', clearFoldHint)
   offCloseRequest?.()
@@ -343,7 +377,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="layout">
+  <div
+    class="layout"
+    :class="{ 'is-mobile': isMobile, 'drawer-left': mobileDrawer === 'left', 'drawer-right': mobileDrawer === 'right' }"
+  >
     <!--
       壁纸层：`.layout` 第一子、fixed + z:-1（绘制序在一切内容之下），
       刻意**不在** Splitpanes/zoom 里（fixed 进缩放层定位基准会飘，见 zoom.css）。
@@ -379,7 +416,8 @@ onBeforeUnmount(() => {
           不占位也不可拖）。
       -->
       <Pane
-        v-if="sidebarOpen"
+        v-if="sidebarOpen || isMobile"
+        class="drawer-pane drawer-pane--left"
         :size="sidebarPaneSize"
         :min-size="sidebarMode === 'rail' ? RAIL_SIZE : SIDEBAR_MIN_SIZE"
         :max-size="sidebarMode === 'rail' ? RAIL_SIZE : SIDEBAR_MAX_SIZE"
@@ -388,7 +426,7 @@ onBeforeUnmount(() => {
       </Pane>
 
       <!-- 在场各栏的 size 加起来正好 100，splitpanes 的重算逻辑就一次都不会被触发 -->
-      <Pane :size="mainSize" :min-size="MAIN_MIN_SIZE">
+      <Pane class="main-pane-wrap" :size="mainSize" :min-size="MAIN_MIN_SIZE">
         <!--
           `.main-pane` 这一层只有一个作用：给缩放控件当定位基准。
           缩放控件是 `main.content` 的**兄弟**而不是孩子 —— 因为
@@ -423,7 +461,8 @@ onBeforeUnmount(() => {
       </Pane>
 
       <Pane
-        v-if="rightPanelOpen"
+        v-if="rightPanelOpen || isMobile"
+        class="drawer-pane drawer-pane--right"
         :size="layout.rightPanelSize"
         :min-size="RIGHT_PANEL_MIN_SIZE"
         :max-size="RIGHT_PANEL_MAX_SIZE"
@@ -431,6 +470,13 @@ onBeforeUnmount(() => {
         <RightPanel />
       </Pane>
     </Splitpanes>
+
+    <!-- 窄屏抽屉遮罩：点它收起当前抽屉 -->
+    <div
+      v-if="isMobile && mobileDrawer !== 'none'"
+      class="mobile-scrim"
+      @click="closeMobileDrawer"
+    />
 
     <!--
       裸壳分支（⑤ 的登录页）：三栏壳整个不进 DOM，路由视图顶上来。
@@ -457,7 +503,7 @@ onBeforeUnmount(() => {
       :aria-label="SIDEBAR_TOGGLE[sidebarMode].title"
       @click="toggleSidebar"
     >
-      {{ SIDEBAR_TOGGLE[sidebarMode].icon }}
+      {{ isMobile ? '☰' : SIDEBAR_TOGGLE[sidebarMode].icon }}
     </button>
 
     <button
@@ -467,7 +513,7 @@ onBeforeUnmount(() => {
       :aria-label="rightPanelOpen ? LAYOUT.COLLAPSE_PANEL : LAYOUT.EXPAND_PANEL"
       @click="togglePanel"
     >
-      {{ rightPanelOpen ? '›' : '‹' }}
+      {{ isMobile ? '☷' : (rightPanelOpen ? '›' : '‹') }}
     </button>
 
     <!--
