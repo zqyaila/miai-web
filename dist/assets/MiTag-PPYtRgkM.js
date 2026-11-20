@@ -1,0 +1,1 @@
+import{b0 as o,b7 as a,b8 as t,bK as r,b6 as c}from"./vendor-DtPqca5b.js";import{_ as n}from"./MiButton-kdi69jTr.js";const l=o({__name:"MiTag",props:{color:{},size:{}},setup(e){return(s,i)=>(c(),a("span",{class:t(["mi-tag",[e.color??"blue",e.size??"sm"]])},[r(s.$slots,"default",{},void 0,!0)],2))}}),d=n(l,[["__scopeId","data-v-c61df2ed"]]);export{d as M};

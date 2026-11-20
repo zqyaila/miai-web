@@ -1,0 +1,57 @@
+/* 网页版补充样式：让桌面端布局在浏览器/窄屏下也舒展 */
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 网页版顶部加一条细提示条位置预留（不用时可忽略） */
+.web-only-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  font-size: 12px;
+  color: #9a6b7d;
+  background: rgba(255, 233, 242, 0.7);
+  border-bottom: 1px solid rgba(255, 182, 213, 0.35);
+}
+:root[data-theme='dark'] .web-only-banner {
+  color: #d9a8bd;
+  background: rgba(42, 31, 43, 0.6);
+  border-bottom-color: rgba(255, 182, 213, 0.15);
+}
+
+/* 大肥鱼占位框美化：把虚线尺子框变成可爱的猫咪脸 */
+.mascot-placeholder,
+[class*='mascot'][class*='placeholder'] {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* 窄屏适配：侧栏在手机/小窗下收窄 */
+@media (max-width: 900px) {
+  .layout { --mi-sidebar-w: 220px; }
+}
+@media (max-width: 640px) {
+  .layout { --mi-sidebar-w: 0px; }
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 150, 165, 0.35);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(180, 150, 165, 0.55); }
+::-webkit-scrollbar-track { background: transparent; }

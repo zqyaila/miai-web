@@ -1,0 +1,42 @@
+{
+  "name": "miai-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "咪爱编程 · 网页版 — 由 Electron 桌面端移植",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.mjs",
+    "serve": "npm run build && node server.mjs"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.11.0",
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/lang-java": "^6.0.2",
+    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.4",
+    "@codemirror/view": "^6.43.11",
+    "@formkit/auto-animate": "^0.10.0",
+    "@lezer/highlight": "^1.2.3",
+    "animejs": "^4.5.0",
+    "echarts": "^6.1.0",
+    "highlight.js": "^11.12.0",
+    "markdown-it": "^15.0.1",
+    "markdown-it-container": "^4.0.0",
+    "pinia": "^3.0.4",
+    "splitpanes": "^4.1.2",
+    "vue": "^3.5.42",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
+  }
+}

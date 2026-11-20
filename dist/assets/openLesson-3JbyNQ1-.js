@@ -1,0 +1,1 @@
+import{b2 as e}from"./vendor-DtPqca5b.js";import{u as r}from"./content-C2-CtQud.js";import{t as u,T as a}from"./MiButton-kdi69jTr.js";function i(){const t=r(),o=e();function n(s){if(t.statusOf(s)==="draft"){u(a.lessonNotReady(t.readyCount),"warn");return}o.push(`/lesson/${s}`)}return{openLesson:n}}export{i as u};

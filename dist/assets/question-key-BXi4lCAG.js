@@ -1,0 +1,1 @@
+function r(i,n){return`${i}:${n}`}function s(i){const n=i.indexOf(":");return n===-1?{lessonId:i,qid:""}:{lessonId:i.slice(0,n),qid:i.slice(n+1)}}const t="ai-";function e(i){return i.startsWith(t)}function o(i){return e(s(i).qid)}export{o as i,s as p,r as q};
